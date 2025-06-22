@@ -1,0 +1,23 @@
+/*
+ * NBuild CMake-based C/C++ Continuous Integration System
+ * 2015-2025 Francisco Garcia Collado
+ * MIT Licence
+ * https://nappgui.com/en/legal/license.html
+ *
+ * File: regex.h
+ *
+ */
+
+/* Regular expresions */
+
+#include "core.hxx"
+
+__EXTERN_C
+
+_core_api RegEx *regex_create(const char_t *pattern);
+
+_core_api void regex_destroy(RegEx **regex);
+
+_core_api bool_t regex_match(const RegEx *regex, const char_t *str);
+
+__END_C

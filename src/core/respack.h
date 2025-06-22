@@ -1,0 +1,23 @@
+/*
+ * NBuild CMake-based C/C++ Continuous Integration System
+ * 2015-2025 Francisco Garcia Collado
+ * MIT Licence
+ * https://nappgui.com/en/legal/license.html
+ *
+ * File: respack.h
+ *
+ */
+
+/* Resource Packages */
+
+#include "core.hxx"
+
+__EXTERN_C
+
+_core_api void respack_destroy(ResPack **pack);
+
+_core_api const char_t *respack_text(const ResPack *pack, const ResId id);
+
+_core_api const byte_t *respack_file(const ResPack *pack, const ResId id, uint32_t *size);
+
+__END_C

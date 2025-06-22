@@ -1,0 +1,141 @@
+% Document and fonts
+\documentclass[11pt,twoside]{book}
+\usepackage[
+%    KDP Paperback 7.5" x 9.25"
+     paperwidth=19.05cm,
+     paperheight=23.5cm,
+     left=20mm,
+     right=20mm,
+     top=20mm,
+     bottom=15mm
+]{geometry}
+
+\usepackage[english,spanish]{babel}
+
+% Packages
+\usepackage{amsmath}
+\usepackage{parskip}
+\usepackage{enumitem}
+\usepackage{titling}
+\usepackage{lmodern}
+\usepackage{textcomp}
+\usepackage{graphbox}
+\usepackage{graphicx}
+\usepackage{floatrow}
+\usepackage{float}
+\usepackage{epigraph}
+\usepackage{soul}
+\usepackage{tikz}
+\usetikzlibrary{shadows.blur}
+\usepackage{titlesec}
+\usepackage{xcolor}
+\usepackage{colortbl}
+\usepackage{hhline}
+\usepackage{sectsty}
+\usepackage{minitoc}
+\usepackage{seqsplit}
+\usepackage[export]{adjustbox}
+\usepackage[framemethod=tikz]{mdframed}
+\usepackage{pdfpages}
+\usepackage{longtable}
+\usepackage{tabu}
+\usepackage{supertabular}
+\usepackage{makeidx}
+
+\definecolor{mybluebg}{RGB}{240,240,255}
+\definecolor{INLINE_CODE}{HTML}{080808}
+
+% Table of Contents section number seperation
+\usepackage{titletoc}
+\dottedcontents{section}[4em]{}{3em}{1000pc}
+\dottedcontents{subsection}[5.5em]{}{3.5em}{1000pc}
+
+% Chapter Table of Contents
+\mtcsettitle{minitoc}{}
+\mtcsetrules{*}{off}
+\undottedmtctrue
+
+% Fancy parts
+\renewcommand\thepart{\arabic{part}}
+
+\newcommand\partnumfont{% font specification for the number
+\fontsize{380}{130}\color{partblueii}\selectfont%
+}
+
+\newcommand\partnamefont{% font specification for the name "PART"
+\normalfont\color{black}\scshape\small\bfseries
+}
+
+\definecolor{partbluei}{HTML}{4681CF}
+\definecolor{partblueii}{RGB}{255,255,255}
+\definecolor{partblueiii}{RGB}{240,240,255}
+
+% Fancy chapters
+\titleformat{\chapter}[display]
+{\normalfont\bfseries\color{TITLE_COLOR}}
+{\filleft%
+\begin{tikzpicture}
+\node[
+outer sep=0pt,
+      minimum width=2cm,
+      minimum height=3cm,
+      fill=TITLE_COLOR,
+      font=\color{white}\fontsize{80}{90}\selectfont,
+      align=center
+      ] (num) {\thechapter};
+\node[
+      rotate=90,
+      anchor=south,
+      font=\color{black}\Large\normalfont
+      ] at ([xshift=-5pt]num.west) {\textsc{\chaptertitlename}};
+\end{tikzpicture}%
+}
+{10pt}
+{\titlerule[2.5pt]\vskip3pt\titlerule\vskip4pt\LARGE\sffamily}
+
+\titlespacing*{\chapter}{0pt}{0pt}{10pt}
+\sectionfont{\sffamily\Large\color{TITLE_COLOR}}
+\subsectionfont{\sffamily\large\color{TITLE_COLOR}}
+\titlespacing\subsubsection{0pt}{40pt plus 4pt minus 2pt}{40pt plus 4pt minus 2pt}
+
+% Fancy chapter minitoc
+\newcommand{\printmyminitoc}{\noindent\hspace{-2cm}\begin{tikzpicture}
+\node[rounded corners,align=left,fill=red, blur shadow={shadow blur steps=5}, inner sep=5mm]{%
+\color{white}%
+\begin{minipage}{8cm}%minipage trick
+\printcontents[chapters]{}{1}{}
+\end{minipage}};
+\end{tikzpicture}}
+
+% Headers, footers and paragraphs
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\renewcommand{\sectionmark}[1]{\markright{~\thesection~-~#1}}
+\renewcommand{\chaptermark}[1]{\markboth{\chaptername~\thechapter~-~#1}{}}
+\renewcommand{\headrulewidth}{0pt}
+\fancyhf{}
+\fancyhead[LE]{\bfseries\thepage~~~\normalfont\itshape\nouppercase{\leftmark}}
+\fancyhead[RO]{\itshape\nouppercase{\rightmark}~~~\bfseries\thepage}
+%\setlength{\parskip}{2mm}
+\setlength{\parindent}{5mm}
+\setlength{\LTpre}{2mm}
+\setlength{\LTpost}{0pt}
+\mdfsetup{skipabove=2mm,skipbelow=2mm}
+
+% Custom fonts
+\usepackage{fontspec}
+%\setromanfont{Palatino Linotype}
+\setsansfont{Open Sans}
+\setmonofont{Courier New}
+
+% Icons in list items
+\newcommand{\licon}[1] {
+\raisebox{-0.4mm}
+{\includegraphics[width=0.025\textwidth]{#1}}}
+
+% Hyperlinks
+\usepackage[hidelinks]{hyperref}
+
+% Hyphenation Rules
+\hyphenation{ins-truc-tions macOS rec-om-mend-able mo-du-les}
+

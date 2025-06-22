@@ -1,0 +1,33 @@
+/*
+ * NBuild CMake-based C/C++ Continuous Integration System
+ * 2015-2025 Francisco Garcia Collado
+ * MIT Licence
+ * https://nappgui.com/en/legal/license.html
+ *
+ * File: keybuf.h
+ *
+ */
+
+/* Keyboard buffer */
+
+#include "core.hxx"
+
+__EXTERN_C
+
+_core_api KeyBuf *keybuf_create(void);
+
+_core_api void keybuf_destroy(KeyBuf **buffer);
+
+_core_api void keybuf_OnUp(KeyBuf *buffer, const vkey_t key);
+
+_core_api void keybuf_OnDown(KeyBuf *buffer, const vkey_t key);
+
+_core_api void keybuf_clear(KeyBuf *buffer);
+
+_core_api bool_t keybuf_pressed(const KeyBuf *buffer, const vkey_t key);
+
+_core_api const char_t *keybuf_str(const vkey_t key);
+
+_core_api void keybuf_dump(const KeyBuf *buffer);
+
+__END_C

@@ -1,0 +1,22 @@
+/*
+ * NBuild CMake-based C/C++ Continuous Integration System
+ * 2015-2025 Francisco Garcia Collado
+ * MIT Licence
+ * https://nappgui.com/en/legal/license.html
+ *
+ * File: osimage.inl
+ *
+ */
+
+/* Images */
+
+#include "../draw2d.ixx"
+#include <sewer/nowarn.hxx>
+#include <gdk-pixbuf/gdk-pixbuf.h>
+#include <sewer/warn.hxx>
+
+__EXTERN_C
+
+const GdkPixbuf *_osimage_pixbuf(const OSImage *image, const uint32_t frame_index);
+
+__END_C
