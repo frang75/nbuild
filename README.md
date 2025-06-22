@@ -52,6 +52,8 @@ In `build/Release/bin` you'll find two executables: `nbuild` and `ndoc`.
 
 _nbuild_ supports build runners from WindowsXP, Snow Leopard and Ubuntu12, and several virtualization technologies: VirtualBox, VMware, UTM.
 
+![IMG_20250616_163115](https://github.com/user-attachments/assets/fe9395fd-3a0f-4ba9-8af1-689bd5f035e1)
+
 ## More info
 
 [NBuild documentation site](https://nappgui.com/en/nbuild/nbuild.html).
