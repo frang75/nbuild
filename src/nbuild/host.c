@@ -716,7 +716,7 @@ static bool_t i_cmake_build(const Host *host, const Job *job, const generator_t 
 
     if (ok == TRUE)
     {
-        const char_t *warnmsgs[] = {"warning:"};
+        const char_t *warnmsgs[] = {"warning:", "warning LNK"};
         const char_t *errmsgs[] = {"error:", "error LNK"};
         *nwarns = i_get_messages(*build_log, warnmsgs, sizeof(warnmsgs) / sizeof(char_t *), warns);
         *nerrors = i_get_messages(*build_log, errmsgs, sizeof(errmsgs) / sizeof(char_t *), errors);
