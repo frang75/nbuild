@@ -15,6 +15,7 @@
 #include "nbuild.h"
 #include <nlib/nlib.h>
 #include <nlib/ssh.h>
+#include <inet/httpreq.h>
 #include <core/arrpt.h>
 #include <core/arrst.h>
 #include <core/date.h>
@@ -206,7 +207,8 @@ static bool_t i_copy_repo_file(const Global *global, const ArrPt(RegEx) *ignore_
                     String *url = NULL;
                     str_split_pathext(src, NULL, &file, NULL);
                     url = str_printf("%s/%s/%s.html", tc(global->doc_url), file_doc_url, tc(file));
-                    stm_printf(stm, " * %s\n", tc(url));
+                    if (http_exists(tc(url)) == TRUE)
+                        stm_printf(stm, " * %s\n", tc(url));
                     str_destroy(&file);
                     str_destroy(&url);
                 }

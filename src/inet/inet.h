@@ -1,0 +1,21 @@
+/*
+ * NBuild CMake-based C/C++ Continuous Integration System
+ * 2015-2025 Francisco Garcia Collado
+ * MIT Licence
+ * https://nappgui.com/en/legal/license.html
+ *
+ * File: inet.h
+ *
+ */
+
+/* inet library */
+
+#include "inet.hxx"
+
+__EXTERN_C
+
+_inet_api void inet_start(void);
+
+_inet_api void inet_finish(void);
+
+__END_C

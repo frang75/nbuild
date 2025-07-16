@@ -1,6 +1,12 @@
 # nbuild Changelog
 
-## v1.5.2 - WIP
+## v1.5.3 - WIP
+
+### Improved
+
+- Source code header show module URL only if really exists the webpage.
+
+## v1.5.2 - Jun 1, 2025 (r6367)
 
 First Open Source release, with these initial features:
 
