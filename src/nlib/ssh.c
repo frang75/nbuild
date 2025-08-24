@@ -1207,7 +1207,7 @@ uint32_t ssh_cmake_install_make_program(const Login *login, const char_t *build_
 
 /*---------------------------------------------------------------------------*/
 
-uint32_t ssh_execute_test(const Login *login, const char_t *test_cmd, String **log)
+uint32_t ssh_execute_cmd(const Login *login, const char_t *test_cmd, String **log)
 {
     uint32_t ret = UINT32_MAX;
     Stream *stm = i_ssh_command(login, test_cmd, TRUE, &ret);

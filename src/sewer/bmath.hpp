@@ -10,6 +10,9 @@
 
 /* Math funcions */
 
+#ifndef __BMATH_HPP__
+#define __BMATH_HPP__
+
 #include "sewer.hxx"
 
 template < typename real >
@@ -73,3 +76,5 @@ struct BMath
     _sewer_api static const real kRAD2DEG;
     _sewer_api static const real kINFINITY;
 };
+
+#endif

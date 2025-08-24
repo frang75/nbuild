@@ -580,7 +580,7 @@ static String *i_cmake_envvars(const Host *host, const ArrPt(String) *tags, cons
 
 /*---------------------------------------------------------------------------*/
 
-static bool_t i_cmake_configure(const Host *host, const Job *job, const generator_t generator, const char_t *srcpath, const char_t *buildpath, const uint32_t runner_id, String **cmake_log, String **error_msg)
+static bool_t i_cmake_configure(const Host *host, const Job *job, const generator_t generator, const char_t *srcpath, const char_t *buildpath, const char_t *instpath, const uint32_t runner_id, String **cmake_log, String **error_msg)
 {
     bool_t ok = TRUE;
     cassert_no_null(host);
@@ -608,6 +608,10 @@ static bool_t i_cmake_configure(const Host *host, const Job *job, const generato
         stm_opts = stm_memory(512);
 
         stm_printf(stm_opts, "%s ", tc(job->opts));
+
+        if (str_empty_c(instpath) == FALSE)
+            stm_printf(stm_opts, "-DCMAKE_INSTALL_PREFIX=%s ", instpath);
+
         if (i_generator_multi_config(generator) == FALSE)
             stm_printf(stm_opts, "-DCMAKE_BUILD_TYPE=%s ", tc(job->config));
 
@@ -745,6 +749,45 @@ static bool_t i_cmake_build(const Host *host, const Job *job, const generator_t 
 
 /*---------------------------------------------------------------------------*/
 
+static bool_t i_macos_codesign(const Login *login, const char_t *instpath, String **error_msg)
+{
+    bool_t ok = TRUE;
+    cassert_no_null(error_msg);
+    cassert(*error_msg == NULL);
+
+    /* Sign command-line executables and .dylib */
+    if (ok == TRUE)
+    {
+        String *cmd = str_printf("find \"%s\" -type f -perm +111 -exec codesign --force --sign - {} \\;", instpath);
+        uint32_t ret = ssh_execute_cmd(login, tc(cmd), NULL);
+        if (ret != 0)
+        {
+            ok = FALSE;
+            *error_msg = str_printf("Failed '%s'", tc(cmd));
+        }
+
+        str_destroy(&cmd);
+    }
+
+    /* Sign .app bundles */
+    if (ok == TRUE)
+    {
+        String *cmd = str_printf("find \"%s\" -name \"*.app\" -exec codesign --force --sign - --deep {} \\;", instpath);
+        uint32_t ret = ssh_execute_cmd(login, tc(cmd), NULL);
+        if (ret != 0)
+        {
+            ok = FALSE;
+            *error_msg = str_printf("Failed '%s'", tc(cmd));
+        }
+
+        str_destroy(&cmd);
+    }
+
+    return ok;
+}
+
+/*---------------------------------------------------------------------------*/
+
 static bool_t i_cmake_install(const Host *host, const Job *job, const generator_t generator, const Vers *cmake_vers, const char_t *makeprogram, const char_t *buildpath, const char_t *instpath, const uint32_t runner_id, String **install_log, String **error_msg)
 {
     bool_t ok = TRUE;
@@ -761,9 +804,9 @@ static bool_t i_cmake_install(const Host *host, const Job *job, const generator_
             String *install_opts = NULL;
             uint32_t ret = UINT32_MAX;
             if (i_generator_multi_config(generator) == TRUE)
-                install_opts = str_printf("--config %s --prefix %s", tc(job->config), instpath);
+                install_opts = str_printf("--config %s", tc(job->config));
             else
-                install_opts = str_printf("--prefix %s", instpath);
+                install_opts = str_c("");
 
             ret = ssh_cmake_install(&host->login, buildpath, tc(install_opts), install_log);
             str_destroy(&install_opts);
@@ -777,11 +820,11 @@ static bool_t i_cmake_install(const Host *host, const Job *job, const generator_
             {
             case ekGENERATOR_NINJA:
             case ekGENERATOR_UNIX_MAKEFILES:
-                install_cmd = str_printf("DESTDIR=%s %s install", instpath, makeprogram);
+                install_cmd = str_printf("%s install", makeprogram);
                 break;
 
             case ekGENERATOR_XCODE:
-                install_cmd = str_printf("DESTDIR=%s %s -target install -config %s", instpath, makeprogram, tc(job->config));
+                install_cmd = str_printf("%s -target install -config %s", makeprogram, tc(job->config));
                 break;
 
             case ekGENERATOR_VS_MSBUILD:
@@ -803,6 +846,10 @@ static bool_t i_cmake_install(const Host *host, const Job *job, const generator_
             str_destopt(&install_cmd);
         }
     }
+
+    /* On macOS arm, we must re-signing .dylib and .app. If not, them will crash */
+    if (host->login.platform == ekMACOS && i_exist_tag(job->tags, "arm64") == TRUE)
+        ok = i_macos_codesign(&host->login, instpath, error_msg);
 
     if (ok == TRUE)
         log_printf("%s Runner %s[%d]%s '%s%s%s' installed", kASCII_SCHED, kASCII_VERSION, runner_id, kASCII_RESET, kASCII_PATH, tc(host->name), kASCII_RESET);
@@ -980,7 +1027,7 @@ static bool_t i_run_build(const Host *host, const Drive *drive, const Job *job, 
     }
 
     if (ok == TRUE)
-        ok = i_cmake_configure(host, job, generator, tc(srcpath), tc(buildpath), runner_id, cmake_log, error_msg);
+        ok = i_cmake_configure(host, job, generator, tc(srcpath), tc(buildpath), tc(instpath), runner_id, cmake_log, error_msg);
 
     if (ok == TRUE)
         ok = i_cmake_build(host, job, generator, tc(buildpath), runner_id, build_log, warns, errors, nwarns, nerrors, error_msg);
@@ -1054,7 +1101,7 @@ static bool_t i_execute_test(const Host *host, const Job *job, const char_t *bui
         cmd = ncmd;
     }
 
-    ret = ssh_execute_test(&host->login, tc(cmd), &log);
+    ret = ssh_execute_cmd(&host->login, tc(cmd), &log);
     if (ret == 0)
     {
         stm_writef(stm, tc(log));
@@ -1195,9 +1242,9 @@ static bool_t i_run_test(const Host *host, const Job *job, const ArrSt(Target) *
     if (ok == TRUE)
     {
         String *opts = str_copy(job->opts);
-        String *nopts = str_printf("%s -DCMAKE_INSTALL_PREFIX=%s", tc(opts), tc(instpath));
+        String *nopts = str_printf("%s -DCMAKE_PREFIX_PATH=%s", tc(opts), tc(instpath));
         str_upd(&cast(job, Job)->opts, tc(nopts));
-        ok = i_cmake_configure(host, job, generator, tc(testpath), tc(buildpath), runner_id, cmake_log, error_msg);
+        ok = i_cmake_configure(host, job, generator, tc(testpath), tc(buildpath), NULL, runner_id, cmake_log, error_msg);
         str_upd(&cast(job, Job)->opts, tc(opts));
         str_destroy(&opts);
         str_destroy(&nopts);

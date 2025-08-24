@@ -90,4 +90,4 @@ uint32_t ssh_cmake_install(const Login *login, const char_t *build_path, const c
 
 uint32_t ssh_cmake_install_make_program(const Login *login, const char_t *build_path, const char_t *install_cmd, String **log);
 
-uint32_t ssh_execute_test(const Login *login, const char_t *test_cmd, String **log);
+uint32_t ssh_execute_cmd(const Login *login, const char_t *test_cmd, String **log);
