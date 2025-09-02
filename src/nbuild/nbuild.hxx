@@ -17,27 +17,6 @@
 
 #define CMAKE_MIN_VERSION "2.8.12"
 
-typedef enum _macos_t
-{
-    ekMACOS_UNKNOWN = 0,
-    ekMACOS_LEOPARD,
-    ekMACOS_SNOW_LEOPARD,
-    ekMACOS_LION,
-    ekMACOS_MOUNTAIN_LION,
-    ekMACOS_MAVERICKS,
-    ekMACOS_YOSEMITE,
-    ekMACOS_EL_CAPITAN,
-    ekMACOS_SIERRA,
-    ekMACOS_HIGH_SIERRA,
-    ekMACOS_MOJAVE,
-    ekMACOS_CATALINA,
-    ekMACOS_BIG_SUR,
-    ekMACOS_MONTEREY,
-    ekMACOS_VENTURA,
-    ekMACOS_SONOMA,
-    ekMACOS_SEQUOIA
-} macos_t;
-
 typedef enum _runstate_t
 {
     ekRUNSTATE_NOT_INIT,

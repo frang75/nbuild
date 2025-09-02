@@ -303,17 +303,17 @@ macos_t host_macos_version(const Host *host)
             if (str_equ(tag, "monterey") == TRUE)
                 return ekMACOS_MONTEREY;
             if (str_equ(tag, "bigsur") == TRUE)
-                return ekMACOS_BIG_SUR;
+                return ekMACOS_BIGSUR;
             if (str_equ(tag, "catalina") == TRUE)
                 return ekMACOS_CATALINA;
             if (str_equ(tag, "mojave") == TRUE)
                 return ekMACOS_MOJAVE;
             if (str_equ(tag, "high_sierra") == TRUE)
-                return ekMACOS_HIGH_SIERRA;
+                return ekMACOS_HIGHSIERRA;
             if (str_equ(tag, "sierra") == TRUE)
                 return ekMACOS_SIERRA;
             if (str_equ(tag, "el_capitan") == TRUE)
-                return ekMACOS_EL_CAPITAN;
+                return ekMACOS_ELCAPITAN;
             if (str_equ(tag, "yosemite") == TRUE)
                 return ekMACOS_YOSEMITE;
             if (str_equ(tag, "mavericks") == TRUE)
@@ -324,12 +324,10 @@ macos_t host_macos_version(const Host *host)
                 return ekMACOS_LION;
             if (str_equ(tag, "snow_leopard") == TRUE)
                 return ekMACOS_SNOW_LEOPARD;
-            if (str_equ(tag, "leopard") == TRUE)
-                return ekMACOS_LEOPARD;
         arrpt_end()
     }
 
-    return ekMACOS_UNKNOWN;
+    return ekMACOS_NO;
 }
 
 /*---------------------------------------------------------------------------*/

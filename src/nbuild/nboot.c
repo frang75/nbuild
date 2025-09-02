@@ -341,7 +341,7 @@ static bool_t i_macos_can_boot_direct(const macos_t from_macOS, const macos_t to
      */
 
     /* BigSur and higher can boot any macOS volume */
-    if (from_macOS >= ekMACOS_BIG_SUR)
+    if (from_macOS >= ekMACOS_BIGSUR)
         return TRUE;
 
     /* Catalina and lower can be booted from any macOS volume */
@@ -518,7 +518,7 @@ static bool_t i_boot_macos(const Host *host, const ArrSt(Host) *hosts, runstate_
     {
         macos_t alive_os = host_macos_version(alive_host);
         macos_t host_os = host_macos_version(host);
-        if (alive_os != ekMACOS_UNKNOWN && host_os != ekMACOS_UNKNOWN)
+        if (alive_os != ekMACOS_NO && host_os != ekMACOS_NO)
         {
             if (i_macos_can_boot_direct(alive_os, host_os) == TRUE)
             {

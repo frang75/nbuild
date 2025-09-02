@@ -108,7 +108,7 @@ static bool_t i_local_dir(const char_t *dir)
 
 static bool_t i_is_source_file(const char_t *ext)
 {
-    const char_t *src_files[] = {"h", "hxx", "hpp", "inl", "ixx", "ipp", "c", "cpp", "m", "def"};
+    const char_t *src_files[] = {"h", "hxx", "hpp", "hdf", "inl", "ixx", "ipp", "c", "cpp", "m", "def"};
     uint32_t i, n = sizeof32(src_files) / sizeof32(const char_t *);
 
     for (i = 0; i < n; ++i)
