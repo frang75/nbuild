@@ -526,7 +526,9 @@ void post_js(const Post *post, const jssec_t sec, Stream *js)
 
     case ekJS_ONLOAD:
         break;
-        cassert_default();
+
+    default:
+        cassert_default(sec);
     }
 }
 

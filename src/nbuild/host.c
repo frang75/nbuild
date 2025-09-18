@@ -294,6 +294,8 @@ macos_t host_macos_version(const Host *host)
     if (host->login.platform == ekMACOS)
     {
         arrpt_foreach_const(tag, host->tags, String)
+            if (str_equ(tag, "tahoe") == TRUE)
+                return ekMACOS_TAHOE;
             if (str_equ(tag, "sequoia") == TRUE)
                 return ekMACOS_SEQUOIA;
             if (str_equ(tag, "sonoma") == TRUE)
@@ -381,7 +383,7 @@ static bool_t i_get_source_package(const Host *host, const WorkPaths *wpaths, co
     /* Copy the source package from master to host */
     if (ok == TRUE)
     {
-        ok = ssh_copy(NULL, tc(wpaths->tmp_path), tarname, &host->login, flowpath, tarname);
+        ok = ssh_copy(NULL, tc(wpaths->tmp_path), tarname, &host->login, flowpath, tarname, FALSE);
         if (ok == FALSE)
             *error_msg = str_printf("Error copying '%s' to '%s'", tarname, flowpath);
     }
@@ -453,7 +455,8 @@ static bool_t i_generator_multi_config(const generator_t generator)
     case ekGENERATOR_MSYS:
     case ekGENERATOR_UNIX_MAKEFILES:
         return FALSE;
-        cassert_default();
+    default:
+        cassert_default(generator);
     }
 
     return FALSE;
@@ -718,7 +721,7 @@ static bool_t i_cmake_build(const Host *host, const Job *job, const generator_t 
 
     if (ok == TRUE)
     {
-        const char_t *warnmsgs[] = {"warning:", "warning LNK"};
+        const char_t *warnmsgs[] = {"warning:", "warning LNK", "warning C"};
         const char_t *errmsgs[] = {"error:", "error LNK"};
         *nwarns = i_get_messages(*build_log, warnmsgs, sizeof(warnmsgs) / sizeof(char_t *), warns);
         *nerrors = i_get_messages(*build_log, errmsgs, sizeof(errmsgs) / sizeof(char_t *), errors);
@@ -786,7 +789,7 @@ static bool_t i_macos_codesign(const Login *login, const char_t *instpath, Strin
 
 /*---------------------------------------------------------------------------*/
 
-static bool_t i_cmake_install(const Host *host, const Job *job, const generator_t generator, const Vers *cmake_vers, const char_t *makeprogram, const char_t *buildpath, const char_t *instpath, const uint32_t runner_id, String **install_log, String **error_msg)
+static bool_t i_cmake_install(const Host *host, const Job *job, const char_t *project, const generator_t generator, const Vers *cmake_vers, const char_t *makeprogram, const char_t *buildpath, const char_t *instpath, const uint32_t runner_id, String **install_log, String **error_msg)
 {
     bool_t ok = TRUE;
     cassert_no_null(host);
@@ -826,13 +829,17 @@ static bool_t i_cmake_install(const Host *host, const Job *job, const generator_
                 break;
 
             case ekGENERATOR_VS_MSBUILD:
+                install_cmd = str_printf("\"%s\" %s.sln /build %s /project INSTALL", makeprogram, project, tc(job->config));
+                break;
+
             case ekGENERATOR_NINJA_MULTI_CONFIG:
             case ekGENERATOR_MINGW:
             case ekGENERATOR_MSYS:
                 ok = FALSE;
                 *error_msg = str_printf("No supported native install for '%s' generator (%s)", tc(job->generator), makeprogram);
                 break;
-                cassert_default();
+            default:
+                cassert_default(generator);
             }
 
             if (ok == TRUE)
@@ -879,7 +886,7 @@ static bool_t i_copy_to_drive(const Host *host, const Drive *drive, const Job *j
 
     if (ok == TRUE)
     {
-        ok = ssh_copy(&host->login, flowpath, tc(tarname), &drive->login, tc(wpaths->drive_path), tc(tarname));
+        ok = ssh_copy(&host->login, flowpath, tc(tarname), &drive->login, tc(wpaths->drive_path), tc(tarname), i_exist_tag(host->tags, "scp-3"));
         if (ok == FALSE)
             *error_msg = str_printf("Error copying '%s' into '%s'", tc(tarname), tc(wpaths->drive_path));
     }
@@ -972,7 +979,7 @@ static String *i_cmake_make_program(const Host *host, const Job *job, const char
 
 /*---------------------------------------------------------------------------*/
 
-static bool_t i_run_build(const Host *host, const Drive *drive, const Job *job, const WorkPaths *wpaths, const char_t *flowid, const uint32_t runner_id, String **cmake_log, String **build_log, String **install_log, String **warns, String **errors, uint32_t *nwarns, uint32_t *nerrors, String **error_msg)
+static bool_t i_run_build(const Host *host, const Drive *drive, const char_t *project, const Job *job, const WorkPaths *wpaths, const char_t *flowid, const uint32_t runner_id, String **cmake_log, String **build_log, String **install_log, String **warns, String **errors, uint32_t *nwarns, uint32_t *nerrors, String **error_msg)
 {
     bool_t ok = TRUE;
     Vers cmake_vers;
@@ -1031,7 +1038,7 @@ static bool_t i_run_build(const Host *host, const Drive *drive, const Job *job, 
         ok = i_cmake_build(host, job, generator, tc(buildpath), runner_id, build_log, warns, errors, nwarns, nerrors, error_msg);
 
     if (ok == TRUE)
-        ok = i_cmake_install(host, job, generator, &cmake_vers, tc(makeprogram), tc(buildpath), tc(instpath), runner_id, install_log, error_msg);
+        ok = i_cmake_install(host, job, project, generator, &cmake_vers, tc(makeprogram), tc(buildpath), tc(instpath), runner_id, install_log, error_msg);
 
     if (ok == TRUE)
         ok = i_copy_to_drive(host, drive, job, tc(flowpath), tc(instpath), wpaths, runner_id, error_msg);
@@ -1068,7 +1075,8 @@ static String *i_test_envvars(const Host *host, const generator_t generator, con
         stm_printf(stm, "export LD_LIBRARY_PATH=%s/bin:$LD_LIBRARY_PATH", instpath);
         break;
 
-        cassert_default();
+    default:
+        cassert_default(host->login.platform);
     }
 
     vars = stm_str(stm);
@@ -1273,10 +1281,10 @@ static bool_t i_run_test(const Host *host, const Job *job, const ArrSt(Target) *
 
 /*---------------------------------------------------------------------------*/
 
-bool_t host_run_build(const Host *host, const Drive *drive, const Job *job, const WorkPaths *wpaths, const uint32_t repo_vers, const char_t *flowid, const uint32_t runner_id, String **cmake_log, String **build_log, String **install_log, String **warns, String **errors, uint32_t *nwarns, uint32_t *nerrors, String **error_msg)
+bool_t host_run_build(const Host *host, const Drive *drive, const Job *job, const char_t *project, const WorkPaths *wpaths, const uint32_t repo_vers, const char_t *flowid, const uint32_t runner_id, String **cmake_log, String **build_log, String **install_log, String **warns, String **errors, uint32_t *nwarns, uint32_t *nerrors, String **error_msg)
 {
     unref(repo_vers);
-    return i_run_build(host, drive, job, wpaths, flowid, runner_id, cmake_log, build_log, install_log, warns, errors, nwarns, nerrors, error_msg);
+    return i_run_build(host, drive, project, job, wpaths, flowid, runner_id, cmake_log, build_log, install_log, warns, errors, nwarns, nerrors, error_msg);
 }
 
 /*---------------------------------------------------------------------------*/

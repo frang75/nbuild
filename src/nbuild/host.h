@@ -48,6 +48,6 @@ const Host *host_macos_alive(const ArrSt(Host) *hosts, const char_t *macos_host)
 
 macos_t host_macos_version(const Host *host);
 
-bool_t host_run_build(const Host *host, const Drive *drive, const Job *job, const WorkPaths *wpaths, const uint32_t repo_vers, const char_t *flowid, const uint32_t runner_id, String **cmake_log, String **build_log, String **install_log, String **warns, String **errors, uint32_t *nwarns, uint32_t *nerrors, String **error_msg);
+bool_t host_run_build(const Host *host, const Drive *drive, const Job *job, const char_t *project, const WorkPaths *wpaths, const uint32_t repo_vers, const char_t *flowid, const uint32_t runner_id, String **cmake_log, String **build_log, String **install_log, String **warns, String **errors, uint32_t *nwarns, uint32_t *nerrors, String **error_msg);
 
 bool_t host_run_test(const Host *host, const Job *job, const ArrSt(Target) *tests, const WorkPaths *wpaths, const uint32_t repo_vers, const char_t *flowid, const uint32_t runner_id, String **cmake_log, String **build_log, String **install_log, String **warns, String **errors, uint32_t *nwarns, uint32_t *nerrors, String **error_msg);

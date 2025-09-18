@@ -204,7 +204,7 @@ static int i_doc_cmp(const RDoc *doc, const uint32_t *doc_repo_vers)
 {
     cassert_no_null(doc);
     cassert_no_null(doc_repo_vers);
-    return (int)doc->doc_repo_vers - *cast_const(doc_repo_vers, uint32_t);
+    return (int)doc->doc_repo_vers - (int)*cast_const(doc_repo_vers, uint32_t);
 }
 
 /*---------------------------------------------------------------------------*/
@@ -1137,7 +1137,7 @@ static uint32_t i_num_tasks_in_loop(const Report *report, const uint32_t loop_id
 
 /*---------------------------------------------------------------------------*/
 
-const RDoc *i_rdoc_in_loop(const Report *report, const uint32_t loop_id)
+static const RDoc *i_rdoc_in_loop(const Report *report, const uint32_t loop_id)
 {
     cassert_no_null(report);
     arrst_foreach_const(doc, report->docs, RDoc)
@@ -1245,6 +1245,9 @@ static const char_t *i_job_icon(const RJob *rjob, const ArrSt(Job) *jobs)
             if (str_equ(job->generator, "MinGW Makefiles") == TRUE)
                 return "mingw.png";
 
+            if (i_icon_tag(job->tags, "tahoe") == TRUE)
+                return "tahoe.png";
+
             if (i_icon_tag(job->tags, "sequoia") == TRUE)
                 return "sequoia.png";
 
@@ -1316,6 +1319,8 @@ static const char_t *i_job_bgcolor(const uint32_t priority)
         return "#F3FFF4";
     case 5:
         return "#F2F6FF";
+    default:
+        cassert_default(priority % 6);
     }
 
     return "";

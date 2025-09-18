@@ -192,7 +192,9 @@ void lnav_js(const LNav *lnav, const jssec_t sec, Stream *js)
     case ekJS_ONLOAD:
         stm_writef(js, "on_lnav_load();\n");
         break;
-        cassert_default();
+
+    default:
+        cassert_default(sec);
     }
 }
 

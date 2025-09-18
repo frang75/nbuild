@@ -145,7 +145,8 @@ static const char_t *i_month(const ResPack *pack, const uint8_t month)
         return respack_text(pack, TEXT_14);
     case ekDECEMBER:
         return respack_text(pack, TEXT_15);
-        cassert_default();
+    default:
+        cassert_default(month);
     }
     return "";
 }
@@ -609,7 +610,8 @@ static void i_latex_tags(Stream *latex, const ArrSt(Tag) *tags, const bool_t int
             }
             break;
 
-            cassert_default();
+        default:
+            cassert_default(tag->type);
         }
 
     arrst_end()
@@ -1209,7 +1211,8 @@ void latex_table(Stream *latex, const Block *block, const char_t *docpath, const
         case ekWARN:
         case ekNOTAG:
         case ekNOTOC:
-            cassert_default();
+        default:
+            cassert_default(child->type);
         }
     arrst_end()
 
@@ -1395,7 +1398,8 @@ static void i_latex_type(Stream *latex, const char_t *type, const ptype_t ptype,
         break;
     case ekOTHER:
         break;
-        cassert_default();
+    default:
+        cassert_default(ptype);
     }
 
     stm_writef(latex, type);

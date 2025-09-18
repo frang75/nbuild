@@ -12,4 +12,4 @@
 
 #include "nbuild.hxx"
 
-void sched_start(ArrSt(SJob) *seljobs, const ArrSt(Host) *hosts, const Drive *drive, const ArrSt(Target) *tests, const WorkPaths *wpaths, const char_t *flowid, const uint32_t repo_vers, Report *report);
+void sched_start(const Global *global, ArrSt(SJob) *seljobs, const ArrSt(Host) *hosts, const Drive *drive, const ArrSt(Target) *tests, const WorkPaths *wpaths, const char_t *flowid, const uint32_t repo_vers, Report *report);

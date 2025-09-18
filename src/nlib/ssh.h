@@ -46,13 +46,13 @@ Stream *ssh_file_cat(const Login *login, const char_t *path, const char_t *filen
 
 bool_t ssh_to_file(const Login *login, const char_t *path, const char_t *filename, const Stream *stm);
 
-bool_t ssh_copy(const Login *from_login, const char_t *from_path, const char_t *from_filename, const Login *to_login, const char_t *to_path, const char_t *to_filename);
+bool_t ssh_copy(const Login *from_login, const char_t *from_path, const char_t *from_filename, const Login *to_login, const char_t *to_path, const char_t *to_filename, const bool_t proxy);
 
 bool_t ssh_copy_files(const Login *login, const char_t *from_path, const char_t *to_path);
 
-bool_t ssh_copy_dir(const Login *from_login, const char_t *from_path, const Login *to_login, const char_t *to_path);
+bool_t ssh_copy_dir(const Login *from_login, const char_t *from_path, const Login *to_login, const char_t *to_path, const bool_t proxy);
 
-bool_t ssh_scp(const Login *from_login, const char_t *from_path, const Login *to_login, const char_t *to_path, const bool_t recursive);
+bool_t ssh_scp(const Login *from_login, const char_t *from_path, const Login *to_login, const char_t *to_path, const bool_t recursive, const bool_t proxy);
 
 bool_t ssh_upload(const char_t *from_path, const Login *to_login, const char_t *to_path, const bool_t recursive);
 

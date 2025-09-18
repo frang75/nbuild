@@ -121,7 +121,7 @@ static ArrSt(uint32_t) *i_parse_ifconfig(Stream *stm)
                 inet++;
                 i++;
 
-                if (unicode_isspace(*inet) == TRUE)
+                if (unicode_isspace((uint32_t)*inet) == TRUE)
                     break;
             }
 

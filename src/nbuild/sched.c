@@ -125,7 +125,7 @@ static void i_destroy_scheduler(Schedul **sched)
 
 /*---------------------------------------------------------------------------*/
 
-static Runner *i_add_runner(ArrSt(Runner) *runners, const Host *host, const ArrSt(Host) *all_hosts, const Drive *drive, const ArrSt(Target) *tests, const WorkPaths *wpaths, const char_t *flowid, Report *report, uint32_t repo_vers)
+static Runner *i_add_runner(const Global *global, ArrSt(Runner) *runners, const Host *host, const ArrSt(Host) *all_hosts, const Drive *drive, const ArrSt(Target) *tests, const WorkPaths *wpaths, const char_t *flowid, Report *report, uint32_t repo_vers)
 {
     /* Check if runner already exists */
     {
@@ -142,6 +142,7 @@ static Runner *i_add_runner(ArrSt(Runner) *runners, const Host *host, const ArrS
 
     {
         Runner *runner = arrst_new0(runners, Runner);
+        runner->global = global;
         runner->host = host;
         runner->all_hosts = all_hosts;
         runner->drive = drive;
@@ -207,7 +208,8 @@ static const char_t *i_state_str(const runstate_t state)
         return "MACOS_TIMEOUT";
     case ekRUNSTATE_UNREACHABLE:
         return "UNREACHABLE";
-        cassert_default();
+    default:
+        cassert_default(state);
     }
 
     return "Unknown";
@@ -253,6 +255,7 @@ static uint32_t i_run_runner_thread(Runner *runner)
     bool_t ok = TRUE;
     const Login *login = NULL;
     cassert_no_null(runner);
+    cassert_no_null(runner->global);
     login = host_login(runner->host);
 
     /* Booting the runner */
@@ -289,7 +292,7 @@ static uint32_t i_run_runner_thread(Runner *runner)
                         const char_t *hostname = host_name(runner->host);
                         report_job_init(runner->report, task->sjob->id, i_BUILD_STEP);
                         log_printf("%s Runner %s[%d]%s '%s%s%s' beginning job %s[%d]%s '%s%s%s'", kASCII_SCHED, kASCII_VERSION, runner->thread_id, kASCII_RESET, kASCII_PATH, host_name(runner->host), kASCII_RESET, kASCII_VERSION, task->job_id, kASCII_RESET, kASCII_TARGET, tc(task->sjob->job->name), kASCII_RESET);
-                        tok = host_run_build(runner->host, runner->drive, task->sjob->job, runner->wpaths, runner->repo_vers, runner->flowid, runner->thread_id, &cmake_log, &build_log, &install_log, &warns, &errors, &nwarns, &nerrors, &error_msg);
+                        tok = host_run_build(runner->host, runner->drive, task->sjob->job, tc(runner->global->project), runner->wpaths, runner->repo_vers, runner->flowid, runner->thread_id, &cmake_log, &build_log, &install_log, &warns, &errors, &nwarns, &nerrors, &error_msg);
                         report_job_end(runner->report, task->sjob->id, i_BUILD_STEP, tok, &error_msg);
                         report_job_state(runner->report, task->sjob->id, i_BUILD_STEP, &build_state);
                         log_printf("%s Runner %s[%d]%s '%s%s%s' complete job %s[%d]%s '%s%s%s'", kASCII_SCHED, kASCII_VERSION, runner->thread_id, kASCII_RESET, kASCII_PATH, host_name(runner->host), kASCII_RESET, kASCII_VERSION, task->job_id, kASCII_RESET, kASCII_TARGET, tc(task->sjob->job->name), kASCII_RESET);
@@ -374,7 +377,7 @@ static bool_t i_prepare_before_runners(const Login *drive, const ArrSt(Task) *ta
         String *tarpath = str_cpath("%s/%s", tc(wpaths->tmp_path), NBUILD_SRC_TAR);
         if (hfile_exists(tc(tarpath), NULL) == FALSE)
         {
-            ok = ssh_copy(drive, tc(wpaths->drive_path), NBUILD_SRC_TAR, NULL, tc(wpaths->tmp_path), NBUILD_SRC_TAR);
+            ok = ssh_copy(drive, tc(wpaths->drive_path), NBUILD_SRC_TAR, NULL, tc(wpaths->tmp_path), NBUILD_SRC_TAR, FALSE);
             if (ok == FALSE)
                 log_printf("%s Error copying '%s' from '%s'", kASCII_SCHED_FAIL, NBUILD_SRC_TAR, tc(wpaths->drive_path));
         }
@@ -388,7 +391,7 @@ static bool_t i_prepare_before_runners(const Login *drive, const ArrSt(Task) *ta
         String *tarpath = str_cpath("%s/%s", tc(wpaths->tmp_path), NBUILD_TEST_TAR);
         if (hfile_exists(tc(tarpath), NULL) == FALSE)
         {
-            ok = ssh_copy(drive, tc(wpaths->drive_path), NBUILD_TEST_TAR, NULL, tc(wpaths->tmp_path), NBUILD_TEST_TAR);
+            ok = ssh_copy(drive, tc(wpaths->drive_path), NBUILD_TEST_TAR, NULL, tc(wpaths->tmp_path), NBUILD_TEST_TAR, FALSE);
             if (ok == FALSE)
                 log_printf("%s Error copying '%s' from '%s'", kASCII_SCHED_FAIL, NBUILD_TEST_TAR, tc(wpaths->drive_path));
         }
@@ -401,7 +404,7 @@ static bool_t i_prepare_before_runners(const Login *drive, const ArrSt(Task) *ta
 
 /*---------------------------------------------------------------------------*/
 
-void sched_start(ArrSt(SJob) *seljobs, const ArrSt(Host) *hosts, const Drive *drive, const ArrSt(Target) *tests, const WorkPaths *wpaths, const char_t *flowid, const uint32_t repo_vers, Report *report)
+void sched_start(const Global *global, ArrSt(SJob) *seljobs, const ArrSt(Host) *hosts, const Drive *drive, const ArrSt(Target) *tests, const WorkPaths *wpaths, const char_t *flowid, const uint32_t repo_vers, Report *report)
 {
     bool_t ok = TRUE;
     Schedul *sched = i_scheduler();
@@ -433,7 +436,7 @@ void sched_start(ArrSt(SJob) *seljobs, const ArrSt(Host) *hosts, const Drive *dr
             host = host_match_job(hosts, sjob->job);
 
         if (host != NULL)
-            task->runner = i_add_runner(sched->runners, host, hosts, drive, tests, wpaths, flowid, report, repo_vers);
+            task->runner = i_add_runner(global, sched->runners, host, hosts, drive, tests, wpaths, flowid, report, repo_vers);
 
     arrst_end()
 

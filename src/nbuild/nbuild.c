@@ -231,7 +231,7 @@ int main(int argc, char *argv[])
             String *path = NULL;
             String *file = NULL;
             str_split_pathname(tc(logfile), &path, &file);
-            if (ssh_copy(NULL, tc(path), tc(file), &network->drive.login, tc(logpath), tc(file)) == FALSE)
+            if (ssh_copy(NULL, tc(path), tc(file), &network->drive.login, tc(logpath), tc(file), FALSE) == FALSE)
             {
                 log_printf("%s Error copy logfile '%s' in '%s' directory.\n", kASCII_FAIL, tc(file), tc(logpath));
                 ok = FALSE;

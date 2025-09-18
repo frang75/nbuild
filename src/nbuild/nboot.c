@@ -659,7 +659,8 @@ bool_t nboot_shutdown(const Host *host, const ArrSt(Host) *hosts, const runstate
     case ekRUNSTATE_UNREACHABLE:
         return FALSE;
 
-        cassert_default();
+    default:
+        cassert_default(state);
     }
 
     return FALSE;

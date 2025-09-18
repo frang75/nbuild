@@ -184,7 +184,8 @@ static String *i_ssh_compose(const Login *login, const char_t *cmd)
 
         case ekMACOS:
         case ekIOS:
-            cassert_default();
+        default:
+            cassert_default(osbs_platform());
         }
     }
     else
@@ -691,7 +692,7 @@ bool_t ssh_to_file(const Login *login, const char_t *path, const char_t *filenam
         Stream *file = stm_to_file(tc(tmp), NULL);
         stm_write(file, data, size);
         stm_close(&file);
-        ok = ssh_scp(NULL, tc(tmp), login, tc(dest), FALSE);
+        ok = ssh_scp(NULL, tc(tmp), login, tc(dest), FALSE, FALSE);
         str_destroy(&tmp);
     }
 
@@ -714,7 +715,7 @@ static bool_t i_login_equal(const Login *login1, const Login *login2)
 
 /*---------------------------------------------------------------------------*/
 
-bool_t ssh_copy(const Login *from_login, const char_t *from_path, const char_t *from_filename, const Login *to_login, const char_t *to_path, const char_t *to_filename)
+bool_t ssh_copy(const Login *from_login, const char_t *from_path, const char_t *from_filename, const Login *to_login, const char_t *to_path, const char_t *to_filename, const bool_t proxy)
 {
     String *from = i_join_file(from_login, from_path, from_filename);
     String *to = i_join_file(to_login, to_path, to_filename);
@@ -724,7 +725,7 @@ bool_t ssh_copy(const Login *from_login, const char_t *from_path, const char_t *
     if (i_login_equal(from_login, to_login) == TRUE)
         ok = ssh_copy_files(from_login, tc(from), tc(to));
     else
-        ok = ssh_scp(from_login, tc(from), to_login, tc(to), FALSE);
+        ok = ssh_scp(from_login, tc(from), to_login, tc(to), FALSE, proxy);
 
     str_destroy(&from);
     str_destroy(&to);
@@ -755,11 +756,11 @@ bool_t ssh_copy_files(const Login *login, const char_t *from_path, const char_t 
 
 /*---------------------------------------------------------------------------*/
 
-bool_t ssh_copy_dir(const Login *from_login, const char_t *from_path, const Login *to_login, const char_t *to_path)
+bool_t ssh_copy_dir(const Login *from_login, const char_t *from_path, const Login *to_login, const char_t *to_path, const bool_t proxy)
 {
     bool_t ok = FALSE;
     String *from = i_join_file(from_login, from_path, "*");
-    ok = ssh_scp(from_login, tc(from), to_login, to_path, TRUE);
+    ok = ssh_scp(from_login, tc(from), to_login, to_path, TRUE, proxy);
     str_destroy(&from);
     return ok;
 }
@@ -778,12 +779,33 @@ static ___INLINE String *i_scp_op(const Login *login, const char_t *path)
 
 /*---------------------------------------------------------------------------*/
 
-bool_t ssh_scp(const Login *from_login, const char_t *from_path, const Login *to_login, const char_t *to_path, const bool_t recursive)
+static const char_t *i_scp_cmd(const Login *from_login, const Login *to_login, const bool_t recursive, const bool_t proxy)
+{
+    bool_t scp3 = !i_localhost(from_login) && !i_localhost(to_login) && proxy;
+    if (scp3 == TRUE)
+    {
+        if (recursive == TRUE)
+            return "scp -3 -r";
+        else
+            return "scp -3";
+    }
+    else
+    {
+        if (recursive == TRUE)
+            return "scp -r";
+        else
+            return "scp";
+    }
+}
+
+/*---------------------------------------------------------------------------*/
+
+bool_t ssh_scp(const Login *from_login, const char_t *from_path, const Login *to_login, const char_t *to_path, const bool_t recursive, const bool_t proxy)
 {
     bool_t ok = FALSE;
     String *from = i_scp_op(from_login, from_path);
     String *to = i_scp_op(to_login, to_path);
-    const char_t *scp = (recursive == TRUE) ? "scp -r" : "scp";
+    const char_t *scp = i_scp_cmd(from_login, to_login, recursive, proxy);
     String *cmd = str_printf("%s %s %s", scp, tc(from), tc(to));
     Proc *proc = bproc_exec(tc(cmd), NULL);
 
@@ -957,7 +979,8 @@ bool_t ssh_shutdown(const Login *login)
         return i_ssh_ok(login, &cmd);
     }
 
-        cassert_default();
+    default:
+        cassert_default(login->platform);
     }
 
     return FALSE;

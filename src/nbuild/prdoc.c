@@ -422,7 +422,7 @@ static bool_t i_generate_doc(const Global *global, const Login *drive, const cha
             /* Copy documentation package to drive */
             if (ok == TRUE)
             {
-                ok = ssh_copy(NULL, tc(wpaths->tmp_ndoc), NBUILD_WEB_TAR, drive, tc(wpaths->drive_doc), NBUILD_WEB_TAR);
+                ok = ssh_copy(NULL, tc(wpaths->tmp_ndoc), NBUILD_WEB_TAR, drive, tc(wpaths->drive_doc), NBUILD_WEB_TAR, FALSE);
                 if (ok == FALSE)
                     copy_error_msg = str_printf("%s Error copying '%s' to '%s'", kASCII_FAIL, NBUILD_WEB_TAR, tc(wpaths->drive_doc));
             }
@@ -627,7 +627,7 @@ static bool_t i_get_previous_reports(const Login *drive, const char_t *drive_rep
 {
     bool_t ok = TRUE;
     String *despath = str_printf("%s/builds/en", repsrc);
-    ssh_copy_dir(drive, drive_rep, NULL, tc(despath));
+    ssh_copy_dir(drive, drive_rep, NULL, tc(despath), FALSE);
     str_destroy(&despath);
     return ok;
 }
@@ -658,7 +658,7 @@ static bool_t i_store_current_report(const Login *drive, const char_t *drive_rep
     String *srcpath = NULL;
     String *srcfile = NULL;
     str_split_pathname(repfile, &srcpath, &srcfile);
-    ok = ssh_copy(NULL, tc(srcpath), tc(srcfile), drive, drive_rep, tc(srcfile));
+    ok = ssh_copy(NULL, tc(srcpath), tc(srcfile), drive, drive_rep, tc(srcfile), FALSE);
     if (ok == FALSE)
         log_printf("%s Storing current report '%s'", kASCII_OK, tc(srcfile));
     str_destroy(&srcpath);
@@ -813,7 +813,7 @@ static bool_t i_store_generated_website(const Login *drive, const char_t *tmp_nr
     /* Copy website to drive */
     if (ok == TRUE)
     {
-        ok = ssh_copy(NULL, tmp_nrep, NBUILD_REP_TAR, drive, drive_rep_web, NBUILD_REP_TAR);
+        ok = ssh_copy(NULL, tmp_nrep, NBUILD_REP_TAR, drive, drive_rep_web, NBUILD_REP_TAR, FALSE);
         if (ok == TRUE)
             log_printf("%s Stored generated report website '%s%s%s'", kASCII_OK, kASCII_PATH, drive_rep_web, kASCII_RESET);
         else

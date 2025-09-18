@@ -429,7 +429,6 @@ void nav_js(const Nav *nav, const jssec_t sec, Stream *js)
     switch (sec)
     {
     case ekJS_CODE:
-
         stm_writef(js, "\nvar mitem = null;\n");
         stm_writef(js, "var lnav_show = false;\n");
         stm_writef(js, "function on_click_menu() {\n");
@@ -460,10 +459,13 @@ void nav_js(const Nav *nav, const jssec_t sec, Stream *js)
 
     case ekJS_ONRESIZE:
         break;
+
     case ekJS_ONLOAD:
         stm_writef(js, "mitem = document.getElementById(\"mitem-hamburger\");\n");
         break;
-        cassert_default();
+
+    default:
+        cassert_default(sec);
     }
 }
 

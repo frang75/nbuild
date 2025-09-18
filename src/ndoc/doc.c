@@ -431,7 +431,8 @@ static ArrSt(Tag) *i_parse_tags(const char_t *text, DocParser *parser)
             break;
         }
 
-            cassert_default();
+        default:
+            cassert_default(type);
         }
     }
 
@@ -2360,7 +2361,8 @@ static bool_t i_section_empty(const ArrSt(Block) *blocks, uint32_t index)
         case ekWARN:
         case ekNOTAG:
         case ekNOTOC:
-            cassert_default();
+        default:
+            cassert_default(block[i].type);
         }
     }
 
@@ -2399,7 +2401,8 @@ static void i_update_generator(generator_t *gen, const btype_t type, const DocPa
             break;
         }
 
-            cassert_default();
+        default:
+            cassert_default(*gen);
         }
     }
     else if (type == ekWEB_ONLY)
@@ -2422,7 +2425,8 @@ static void i_update_generator(generator_t *gen, const btype_t type, const DocPa
             break;
         }
 
-            cassert_default();
+        default:
+            cassert_default(*gen);
         }
     }
 }
@@ -2532,7 +2536,8 @@ static void i_latex_docblocks(const Doc *doc, Stream *latex, const Config *confi
         case ekFNOTE:
         case ekWARN:
         case ekNOTAG:
-            cassert_default();
+        default:
+            cassert_default(block->type);
         }
     arrst_end()
 
@@ -2940,7 +2945,6 @@ static void i_web(Stream *html, DocParser *parser)
 
         switch (block->type)
         {
-
         case ekH2:
             web_h2(html, block, parser);
             break;
@@ -3019,7 +3023,8 @@ static void i_web(Stream *html, DocParser *parser)
         case ekWARN:
         case ekNOTAG:
         case ekNOTOC:
-            cassert_default();
+        default:
+            cassert_default(block->type);
         }
     arrst_end()
 
@@ -3064,7 +3069,6 @@ static void i_OnWebContent(DocParser *parser, Event *e)
     cassert_no_null(parser->doc);
     switch (type)
     {
-
     case ekPAGE_TITLE:
         web_h1(html, &parser->doc->h1, parser);
         break;
@@ -3161,7 +3165,8 @@ static void i_OnWebContent(DocParser *parser, Event *e)
                 case ekWARN:
                 case ekNOTAG:
                 case ekNOTOC:
-                    cassert_default();
+                default:
+                    cassert_default(parser->scode_block->type);
                 }
 
                 result->has_link = TRUE;
@@ -3192,7 +3197,8 @@ static void i_OnWebContent(DocParser *parser, Event *e)
 
     case ekCSS_CONTENT:
     case ekJS_CONTENT:
-        cassert_default();
+    default:
+        cassert_default(type);
     }
 }
 

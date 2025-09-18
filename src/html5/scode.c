@@ -257,7 +257,9 @@ void scode_begin(const SCode *code, const caption_t caption, const char_t *list_
         stm_writef(html, "\n<details>\n");
         stm_writef(html, "<summary class='top'>\n");
         break;
-        cassert_default();
+
+    default:
+        cassert_default(caption);
     }
 
     if (list_id != NULL)
@@ -310,7 +312,8 @@ static void i_parse_cpp(Stream *html, const byte_t *data, const uint32_t size, L
                     idcl = "f";
                     break;
                 case ekID_OTHER:
-                    cassert_default();
+                default:
+                    cassert_default(result.type);
                 }
 
                 stm_printf(html, "<span class='%s'>", idcl);
@@ -457,7 +460,8 @@ void scode_html(const SCode *code, Stream *html, const char_t *lang, const uint3
         stm_writef(html, "\n</summary>\n");
         stm_writef(html, "<figure class='fdetails'>\n");
         break;
-        cassert_default();
+    default:
+        cassert_default(code->caption);
     }
 
     stm_writef(html, "<table class='code'>\n");
@@ -540,7 +544,8 @@ void scode_html(const SCode *code, Stream *html, const char_t *lang, const uint3
     case ekCAPTION_CLOSED:
         stm_writef(html, "</details>\n");
         break;
-        cassert_default();
+    default:
+        cassert_default(code->caption);
     }
 
     cast(code, SCode)->caption = ENUM_MAX(caption_t);

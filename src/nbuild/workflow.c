@@ -689,7 +689,7 @@ static String *i_run(const Workflow *workflow, const Network *network, const cha
 
         if (arrst_size(seljobs, SJob) > 0)
         {
-            sched_start(seljobs, network->hosts, drive, workflow->tests, wpaths, tc(global->flowid), repo_vers, report);
+            sched_start(global, seljobs, network->hosts, drive, workflow->tests, wpaths, tc(global->flowid), repo_vers, report);
         }
         else
         {

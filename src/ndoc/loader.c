@@ -896,7 +896,8 @@ static const char_t *i_month(const ResPack *pack, const uint8_t month)
         return respack_text(pack, TEXT_14);
     case ekDECEMBER:
         return respack_text(pack, TEXT_15);
-        cassert_default();
+    default:
+        cassert_default(month);
     }
     return "";
 }

@@ -182,7 +182,9 @@ void rcol_js(const RCol *rcol, const jssec_t sec, Stream *js)
 
     case ekJS_ONLOAD:
         break;
-        cassert_default();
+
+    default:
+        cassert_default(sec);
     }
 }
 

@@ -463,7 +463,7 @@ bool_t target_tar(const Login *drive, const WorkPaths *wpaths, const char_t *src
         /* Once compressed, we move the .tar to drive node */
         if (ok == TRUE)
         {
-            ok = ssh_copy(NULL, tc(wpaths->tmp_path), tarname, drive, tc(wpaths->drive_path), tarname);
+            ok = ssh_copy(NULL, tc(wpaths->tmp_path), tarname, drive, tc(wpaths->drive_path), tarname, FALSE);
             if (ok == FALSE)
                 error_msg = str_printf("Error moving '%s' to drive", tc(tarpath));
         }

@@ -638,7 +638,8 @@ static void i_html_tags(Stream *html, const ArrSt(Tag) *tags, DocParser *parser)
         case ekLTYPE_CLOSE:
             break;
 
-            cassert_default();
+        default:
+            cassert_default(tag->type);
         }
 
     arrst_end()
@@ -1055,7 +1056,9 @@ void web_table(Stream *html, const Block *block, DocParser *parser)
         stm_writef(html, "\n<details>\n");
         stm_writef(html, "<summary class='top center'>\n");
         break;
-        cassert_default();
+
+    default:
+        cassert_default(caption);
     }
 
     if (i_with_text(block->tags) == TRUE)
@@ -1078,7 +1081,8 @@ void web_table(Stream *html, const Block *block, DocParser *parser)
         stm_writef(html, "\n</summary>\n");
         stm_writef(html, "<figure class='fdetails'>\n");
         break;
-        cassert_default();
+    default:
+        cassert_default(caption);
     }
 
     stm_writef(html, "<div class='divtable'>\n");
@@ -1169,9 +1173,9 @@ void web_table(Stream *html, const Block *block, DocParser *parser)
         case ekWARN:
         case ekNOTAG:
         case ekNOTOC:
-            cassert_default();
+        default:
+            cassert_default(child->type);
         }
-
     arrst_end()
 
     stm_writef(html, "</tr>\n");
@@ -1189,7 +1193,8 @@ void web_table(Stream *html, const Block *block, DocParser *parser)
     case ekCAPTION_CLOSED:
         stm_writef(html, "</details>\n");
         break;
-        cassert_default();
+    default:
+        cassert_default(caption);
     }
 
     i_html_errors(parser->status, parser);
@@ -1340,7 +1345,8 @@ static void i_html_type(Stream *html, const char_t *type, const ptype_t ptype, c
         break;
     case ekOTHER:
         break;
-        cassert_default();
+    default:
+        cassert_default(ptype);
     }
 
     n = str_len_c(type);
@@ -1668,7 +1674,8 @@ static void i_write_struct(Stream *html, const char_t *name, const ptype_t ptype
                     break;
                 case ekOTHER:
                     break;
-                    cassert_default();
+                default:
+                    cassert_default(ptype);
                 }
             }
 
